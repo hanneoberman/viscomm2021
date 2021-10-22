@@ -9,44 +9,84 @@ runtime: shiny
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+colors <- mice::mdc(1:2) %>% setNames(c("observed", "missing"))
+dat <- mice::boys[1:10,c("hgt", "wgt")] %>% cbind(R = "observed") %>% 
+  rbind(data.frame(hgt = c(NA, 51.5, 53, 50.5, 52, 55), wgt = rep(3.5, 6), R = "missing"))
 ```
 
-## Shiny Presentation
+## Missing Data {.columns-2}
 
-This R Markdown presentation is made interactive using Shiny. The viewers of the presentation can change the assumptions underlying what's presented and see the results immediately. 
+```{r pat, fig.width=4,fig.height=4}
+patterns <- tibble(rownr = 1:5, X = rep(1, 5), Y = c(0,1,1,0,1), Z = c(0,0,0,1,1)) %>% 
+  pivot_longer(cols = c(X, Y, Z)) %>% 
+  mutate(rownr = as.factor(rownr),
+         value = factor(value, levels = c(1, 0), labels = c("observed", "missing")))
+ggplot(patterns, aes(x = name, y = rownr, fill = value)) +
+  geom_tile(color = "black") +
+  scale_x_discrete(position = "top") +
+  scale_y_discrete(labels = 5:1) +
+  scale_fill_manual(values = colors, name = "Data point") +
+  theme_minimal() +
+  theme(legend.position = "right", panel.grid.major = element_blank() ) +
+  labs(x = "", y = "")
+```
 
-To learn more, see [Interactive Documents](http://rmarkdown.rstudio.com/authoring_shiny.html).
+Missing data is ubiquitous, but often ignored.
 
-## Interactive Plot
+Ad hoc solutions yield biased results and a false sense of certainty.
 
-```{r eruptions}
-inputPanel(
-  selectInput("n_breaks", label = "Number of bins:",
-              choices = c(10, 20, 35, 50), selected = 20),
-  
-  sliderInput("bw_adjust", label = "Bandwidth adjustment:",
-              min = 0.2, max = 2, value = 1, step = 0.2)
-)
+That's why we're developing an (online) evaluation tool to visualize missingness.
 
+More specifically: uncertainty due to missing data. And I need your help!
+
+
+## Ignoring Uncertainty {.columns-2}
+<br>
+```{r mis, echo=FALSE, fig.height=4, fig.width=4}
+ggplot(dat[1:10, ], aes(x = wgt, y = hgt, color = R)) +
+  geom_point(na.rm = TRUE) +
+  geom_point(data = dat[11,], aes(x = wgt, y = -Inf, color = R), shape = 17, size = 5) +
+  scale_color_manual(values = colors) +
+  theme_classic() +
+  theme(legend.position = "none") +
+  labs(x = "Weight", y = "Height")
+```
+
+
+Default methods ignore uncertainty due to the missingness:
+
+- Complete case analysis;
+
+- Imputing (i.e. filling in) a constant;
+
+- Interpolation, etc.
+
+That's why the current 'gold standard' is to impute each missing value several times, to capture the uncertainty in the 'guestimates'.
+
+## Multiple Imputation
+
+```{r imp}
 renderPlot({
-  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
-       xlab = "Duration (minutes)", main = "Geyser eruption duration")
-  
-  dens <- density(faithful$eruptions, adjust = input$bw_adjust)
-  lines(dens, col = "blue")
+  rows <- c(1:(11 + as.numeric(input$m)))
+  ggplot(dat[rows, ], aes(x = wgt, y = hgt, color = R)) +
+  geom_point(na.rm = TRUE, size = 2) +
+  geom_point(data = dat[11,], aes(x = wgt, y = -Inf, color = R), shape = 17, size = 5) +
+  scale_color_manual(values = colors) +
+  theme_classic() +
+  theme(legend.position = "none") +
+  labs(x = "Weight", y = "Height")
 })
+inputPanel(
+  sliderInput("m", label = "Number of imputations",
+              min = 0, max = 5, value = 0, step = 1)
+)
 ```
 
-## Bullets
+## Our App: {shinymice}
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
+![](./img/hex.png){style="display:block;margin-left:auto;margin-right:auto;"}
 
-## R Output
+## Your Feedback
 
-```{r cars}
-summary(cars)
-```
-
-
+[hanneoberman.shinyapps.io/shinymice-demo](https://hanneoberman.shinyapps.io/shinymice-demo/)

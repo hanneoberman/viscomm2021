@@ -86,7 +86,36 @@ inputPanel(
 ## Our App: {shinymice}
 
 ![](./img/hex.png){style="display:block;margin-left:auto;margin-right:auto;"}
+<br>
 
-## Your Feedback
+Demo app: [tinyURL.com/shinymice](https://tinyurl.com/shinymice)
 
-[hanneoberman.shinyapps.io/shinymice-demo](https://hanneoberman.shinyapps.io/shinymice-demo/)
+
+## Your Feedback 
+
+<!-- ![](./img/imp.png) -->
+
+![](./img/scatter.png){style="display:block;"}
+
+
+Demo app: [tinyURL.com/shinymice](https://tinyurl.com/shinymice)
+
+
+## Thank You! {.columns-2}
+
+![](./img/logo.png){style="display:block;"}
+
+Demo app: [tinyURL.com/shinymice](https://tinyurl.com/shinymice)
+
+<br>
+
+Please provide your feedback:
+
+- In the conference chat(s);
+
+- At [github.com/amices/shinymice](https://github.com/amices/shinymice/);
+
+- Through email ([h.i.oberman@uu.nl](https://hanneoberman.github.io));
+
+- Or on Twitter (@[hioberman](https://twitter.com/hioberman))!
+
